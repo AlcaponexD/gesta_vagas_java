@@ -24,7 +24,8 @@ public class SecurityConfig {
                     // Public routes
                     auth.requestMatchers("/candidate/").permitAll()
                             .requestMatchers("/company/").permitAll()
-                            .requestMatchers("/auth/company").permitAll();
+                            .requestMatchers("/auth/company").permitAll()
+                            .requestMatchers("/candidate/auth").permitAll();
 
                     // rest authenticated routes
                     auth.anyRequest().authenticated();

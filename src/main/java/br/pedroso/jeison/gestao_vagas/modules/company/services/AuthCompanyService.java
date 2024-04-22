@@ -1,4 +1,4 @@
-package br.pedroso.jeison.gestao_vagas.modules.company;
+package br.pedroso.jeison.gestao_vagas.modules.company.services;
 
 import java.time.Instant;
 
