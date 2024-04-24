@@ -14,12 +14,12 @@ import br.pedroso.jeison.gestao_vagas.modules.company.dto.AuthCompanyDTO;
 import br.pedroso.jeison.gestao_vagas.modules.company.services.AuthCompanyService;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/company")
 public class AuthController {
     @Autowired
     private AuthCompanyService authCompanyService;
 
-    @PostMapping("/company")
+    @PostMapping("/auth")
     public ResponseEntity<Object> create(@RequestBody AuthCompanyDTO authCompanyDTO) {
         try {
             String token = this.authCompanyService.execute(authCompanyDTO);

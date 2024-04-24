@@ -15,6 +15,9 @@ public class SecurityConfig {
     @Autowired
     private SecurityCompanyFilter securityCompanyFilter;
 
+    @Autowired
+    private SecurityCandidateFilter securityCandidateFilter;
+
     // sobreescreve a config padrao do spring security para desabilitar globalmente
     // a autenticacao
     @Bean
@@ -24,12 +27,13 @@ public class SecurityConfig {
                     // Public routes
                     auth.requestMatchers("/candidate/").permitAll()
                             .requestMatchers("/company/").permitAll()
-                            .requestMatchers("/auth/company").permitAll()
+                            .requestMatchers("/company/auth").permitAll()
                             .requestMatchers("/candidate/auth").permitAll();
 
                     // rest authenticated routes
                     auth.anyRequest().authenticated();
                 })
+                .addFilterBefore(securityCandidateFilter, BasicAuthenticationFilter.class)
                 .addFilterBefore(securityCompanyFilter, BasicAuthenticationFilter.class);
 
         return http.build();
