@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.pedroso.jeison.gestao_vagas.modules.company.dto.AuthCompanyDTO;
+import br.pedroso.jeison.gestao_vagas.modules.company.dto.AuthCompanyResponseDTO;
 import br.pedroso.jeison.gestao_vagas.modules.company.services.AuthCompanyService;
 
 @RestController
@@ -22,7 +23,7 @@ public class AuthController {
     @PostMapping("/auth")
     public ResponseEntity<Object> create(@RequestBody AuthCompanyDTO authCompanyDTO) {
         try {
-            String token = this.authCompanyService.execute(authCompanyDTO);
+            AuthCompanyResponseDTO token = this.authCompanyService.execute(authCompanyDTO);
             return ResponseEntity.ok().body(token);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());

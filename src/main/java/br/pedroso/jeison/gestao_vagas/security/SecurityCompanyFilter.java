@@ -2,12 +2,16 @@ package br.pedroso.jeison.gestao_vagas.security;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import com.auth0.jwt.interfaces.DecodedJWT;
 
 import br.pedroso.jeison.gestao_vagas.providers.JWTProvider;
 import jakarta.servlet.FilterChain;
@@ -23,21 +27,25 @@ public class SecurityCompanyFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        SecurityContextHolder.getContext().setAuthentication(null);
+        // SecurityContextHolder.getContext().setAuthentication(null);
         if (request.getRequestURI().startsWith("/company")) {
             String header = request.getHeader("Authorization");
             if (header != null) {
-                String subjectToken = this.jwtProvider.validateToken(header);
-                if (subjectToken.isEmpty()) {
+                DecodedJWT token = this.jwtProvider.validateToken(header);
+
+                if (token == null) {
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                     return;
                 }
 
-                request.setAttribute("company_id", subjectToken);
+                request.setAttribute("company_id", token.getSubject());
 
-                UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(subjectToken, null,
-                        Collections.emptyList());
-
+                List<Object> roles = token.getClaim("roles").asList(Object.class);
+                var grants = roles.stream()
+                        .map(role -> new SimpleGrantedAuthority("ROLE_" + role.toString().toUpperCase()))
+                        .toList();
+                UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(token.getSubject(),
+                        null, grants);
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
         }

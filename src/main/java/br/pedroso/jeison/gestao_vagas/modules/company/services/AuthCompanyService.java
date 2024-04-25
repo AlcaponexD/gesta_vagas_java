@@ -1,12 +1,12 @@
 package br.pedroso.jeison.gestao_vagas.modules.company.services;
 
 import java.time.Instant;
+import java.util.Arrays;
 
 import javax.naming.AuthenticationException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties.Jwt;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +14,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 
 import br.pedroso.jeison.gestao_vagas.modules.company.dto.AuthCompanyDTO;
+import br.pedroso.jeison.gestao_vagas.modules.company.dto.AuthCompanyResponseDTO;
 import br.pedroso.jeison.gestao_vagas.modules.company.entities.CompanyEntity;
 import br.pedroso.jeison.gestao_vagas.modules.company.repositories.CompanyRepository;
 import java.time.Duration;
@@ -32,7 +33,7 @@ public class AuthCompanyService {
 
     private String messageException = "Username/password mismatch";
 
-    public String execute(AuthCompanyDTO authCompanyDTO) throws AuthenticationException {
+    public AuthCompanyResponseDTO execute(AuthCompanyDTO authCompanyDTO) throws AuthenticationException {
         CompanyEntity company = this.companyRepository.findByUsername(authCompanyDTO.getUsername());
 
         if (company == null) {
@@ -47,10 +48,19 @@ public class AuthCompanyService {
         }
         // se for igual -> gerar o token
         Algorithm algorithm = Algorithm.HMAC256(secretKey);
-        String token = JWT.create().withIssuer("javagas")
-                .withExpiresAt(Instant.now().plus(Duration.ofHours(2)))
-                .withSubject(company.getId().toString()).sign(algorithm);
+        Instant expires_in = Instant.now().plus(Duration.ofHours(2));
+        String token = JWT.create()
+                .withIssuer("javagas")
+                .withSubject(company.getId().toString())
+                .withClaim("roles", Arrays.asList("COMPANY"))
+                .withExpiresAt(expires_in)
+                .sign(algorithm);
 
-        return token;
+        AuthCompanyResponseDTO authCompanyResponseDTO = AuthCompanyResponseDTO.builder()
+                .access_token(token)
+                .expires_in(expires_in.toEpochMilli())
+                .build();
+
+        return authCompanyResponseDTO;
     }
 }

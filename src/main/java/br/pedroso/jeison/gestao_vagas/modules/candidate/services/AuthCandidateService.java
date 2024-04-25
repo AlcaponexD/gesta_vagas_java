@@ -21,45 +21,45 @@ import br.pedroso.jeison.gestao_vagas.modules.candidate.dto.AuthCandidateRespons
 
 @Service
 public class AuthCandidateService {
-    @Autowired
-    private CandidateRepository candidateRepository;
+        @Autowired
+        private CandidateRepository candidateRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+        @Autowired
+        private PasswordEncoder passwordEncoder;
 
-    @Value("${security.token.secret.candidate}")
-    private String secretKey;
+        @Value("${security.token.secret.candidate}")
+        private String secretKey;
 
-    private String message = "Username/password mismatch";
+        private String message = "Username/password mismatch";
 
-    public AuthCandidateResponseDTO execute(AuthCandidateRequestDTO authCandidateRequestDTO)
-            throws BadCredentialsException {
-        CandidateEntity candidate = this.candidateRepository.findByUsername(authCandidateRequestDTO.username())
-                .orElseThrow(() -> {
-                    throw new BadCredentialsException(message);
-                });
+        public AuthCandidateResponseDTO execute(AuthCandidateRequestDTO authCandidateRequestDTO)
+                        throws BadCredentialsException {
+                CandidateEntity candidate = this.candidateRepository.findByUsername(authCandidateRequestDTO.username())
+                                .orElseThrow(() -> {
+                                        throw new BadCredentialsException(message);
+                                });
 
-        Boolean passwordMatches = this.passwordEncoder
-                .matches(authCandidateRequestDTO.password(), candidate.getPassword());
+                Boolean passwordMatches = this.passwordEncoder
+                                .matches(authCandidateRequestDTO.password(), candidate.getPassword());
 
-        if (!passwordMatches) {
-            throw new BadCredentialsException(message);
+                if (!passwordMatches) {
+                        throw new BadCredentialsException(message);
+                }
+
+                Instant expires_in = Instant.now().plus(Duration.ofHours(2));
+                Algorithm algorithm = Algorithm.HMAC256(secretKey);
+                String token = JWT.create()
+                                .withIssuer("javagas")
+                                .withSubject(candidate.getId().toString())
+                                .withClaim("roles", Arrays.asList("CANDIDATE"))
+                                .withExpiresAt(expires_in)
+                                .sign(algorithm);
+
+                AuthCandidateResponseDTO authCandidateResponse = AuthCandidateResponseDTO.builder()
+                                .access_token(token)
+                                .expires_in(expires_in.toEpochMilli())
+                                .build();
+
+                return authCandidateResponse;
         }
-
-        Instant expires_in = Instant.now().plus(Duration.ofHours(2));
-        Algorithm algorithm = Algorithm.HMAC256(secretKey);
-        String token = JWT.create()
-                .withIssuer("javagas")
-                .withSubject(candidate.getId().toString())
-                .withClaim("roles", Arrays.asList("candidate"))
-                .withExpiresAt(expires_in)
-                .sign(algorithm);
-
-        AuthCandidateResponseDTO authCandidateResponse = AuthCandidateResponseDTO.builder()
-                .access_token(token)
-                .expires_in(expires_in.toEpochMilli())
-                .build();
-
-        return authCandidateResponse;
-    }
 }
