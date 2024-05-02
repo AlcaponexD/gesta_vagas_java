@@ -21,6 +21,14 @@ public class SecurityConfig {
     @Autowired
     private SecurityCandidateFilter securityCandidateFilter;
 
+    private static final String[] SWAGGER_LIST = {
+            "/v3/api-docs/**",
+            "/swagger-resources/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html",
+            "/webjars/**"
+    };
+
     // sobreescreve a config padrao do spring security para desabilitar globalmente
     // a autenticacao
     @Bean
@@ -31,8 +39,8 @@ public class SecurityConfig {
                     auth.requestMatchers("/candidate/").permitAll()
                             .requestMatchers("/company/").permitAll()
                             .requestMatchers("/company/auth").permitAll()
-                            .requestMatchers("/candidate/auth").permitAll();
-
+                            .requestMatchers("/candidate/auth").permitAll()
+                            .requestMatchers(SWAGGER_LIST).permitAll();
                     // rest authenticated routes
                     auth.anyRequest().authenticated();
                 })

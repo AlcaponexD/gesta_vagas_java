@@ -23,7 +23,7 @@ public class JobController<jobEntity> {
     private CreateJobService createJobService;
 
     @PostMapping("/")
-    // @PreAuthorize("hasRole('COMPANY')")
+    @PreAuthorize("hasRole('COMPANY')")
     public JobEntity create(@Valid @RequestBody CreateJobDTO createJobDTO, HttpServletRequest request) {
 
         // Necessário pois foi injetado company_id direto do filter
