@@ -35,6 +35,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/candidate")
+@Tag(name = "Candidato", description = "Informações de candidato")
 
 public class CandidateController {
 
@@ -77,7 +78,6 @@ public class CandidateController {
     @GetMapping("/job")
     @PreAuthorize("hasRole('CANDIDATE')")
     // Cria a documentação da rota no swagger
-    @Tag(name = "Candidato", description = "Informações de candidato")
     @Operation(summary = "Listagem de vagas disponivel para o candidato", description = "Lista de vagas")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Sucesso", content = {

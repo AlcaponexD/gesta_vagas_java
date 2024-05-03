@@ -6,6 +6,14 @@ import org.springframework.web.bind.annotation.RestController;
 import br.pedroso.jeison.gestao_vagas.modules.company.dto.CreateJobDTO;
 import br.pedroso.jeison.gestao_vagas.modules.company.entities.JobEntity;
 import br.pedroso.jeison.gestao_vagas.modules.company.services.CreateJobService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
@@ -18,12 +26,21 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 @RequestMapping("/company/job")
+
 public class JobController<jobEntity> {
     @Autowired
     private CreateJobService createJobService;
 
     @PostMapping("/")
     @PreAuthorize("hasRole('COMPANY')")
+    @Tag(name = "Vagas", description = "Informações das vagas")
+    @Operation(summary = "Essa função é responsavel por cadastrar as vagas", description = "Cadastro de vagas")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Sucesso", content = {
+                    @Content(schema = @Schema(implementation = JobEntity.class))
+            })
+    })
+    @SecurityRequirement(name = "jwt_auth")
     public JobEntity create(@Valid @RequestBody CreateJobDTO createJobDTO, HttpServletRequest request) {
 
         // Necessário pois foi injetado company_id direto do filter
