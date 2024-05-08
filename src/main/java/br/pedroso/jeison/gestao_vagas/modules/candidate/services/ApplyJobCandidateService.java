@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import br.pedroso.jeison.gestao_vagas.exceptions.JobNotFoundException;
 import br.pedroso.jeison.gestao_vagas.exceptions.UserNotFoundException;
 import br.pedroso.jeison.gestao_vagas.modules.candidate.CandidateRepository;
+import br.pedroso.jeison.gestao_vagas.modules.candidate.repository.ApplyJobRepository;
 import br.pedroso.jeison.gestao_vagas.modules.company.repositories.JobRepository;
 
 public class ApplyJobCandidateService {
@@ -15,6 +16,9 @@ public class ApplyJobCandidateService {
 
     @Autowired
     private JobRepository jobRepository;
+
+    @Autowired
+    private ApplyJobRepository applyJobRepository;
 
     public void execute(UUID idCandidate, UUID idJob) {
         // Validate exists candidate
@@ -29,6 +33,6 @@ public class ApplyJobCandidateService {
                     throw new JobNotFoundException();
                 });
 
-        // Apply job to candidate
+        // Apply candidate to job
     }
 }
