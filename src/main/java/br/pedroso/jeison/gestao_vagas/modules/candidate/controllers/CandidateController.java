@@ -6,6 +6,8 @@ import br.pedroso.jeison.gestao_vagas.exceptions.UserFoundException;
 import br.pedroso.jeison.gestao_vagas.modules.candidate.CandidateEntity;
 import br.pedroso.jeison.gestao_vagas.modules.candidate.CandidateRepository;
 import br.pedroso.jeison.gestao_vagas.modules.candidate.dto.ProfileCandidateResponseDTO;
+import br.pedroso.jeison.gestao_vagas.modules.candidate.entity.ApplyJobEntity;
+import br.pedroso.jeison.gestao_vagas.modules.candidate.services.ApplyJobCandidateService;
 import br.pedroso.jeison.gestao_vagas.modules.candidate.services.CreateCandidateService;
 import br.pedroso.jeison.gestao_vagas.modules.candidate.services.ListAllJobsByFilterService;
 import br.pedroso.jeison.gestao_vagas.modules.candidate.services.ProfileCandidateService;
@@ -38,6 +40,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Tag(name = "Candidato", description = "Informações de candidato")
 
 public class CandidateController {
+
+    @Autowired
+    private ApplyJobCandidateService applyJobCandidateService;
 
     @Autowired
     private CreateCandidateService createCandidateService;
@@ -87,6 +92,24 @@ public class CandidateController {
     @SecurityRequirement(name = "jwt_auth")
     public List<JobEntity> findJobByFilter(@RequestParam String filter) {
         return this.listAllJobsByFilterService.execute(filter);
+    }
+
+    @PreAuthorize("hasRole('CANDIDATE')")
+    @SecurityRequirement(name = "jwt_auth")
+    @Operation(summary = "Inscrição do candidato para uma vaga", description = "Aplicar em vaga")
+    @PostMapping("/job/apply")
+    public ResponseEntity<Object> applyJob(HttpServletRequest httpServletRequest, @RequestBody UUID idJob) {
+        Object idCandidate = httpServletRequest.getAttribute("candidate_id");
+
+        try {
+            ApplyJobEntity result = this.applyJobCandidateService.execute(UUID.fromString(idCandidate.toString()),
+                    idJob);
+            return ResponseEntity.ok().body(result);
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+
     }
 
 }
