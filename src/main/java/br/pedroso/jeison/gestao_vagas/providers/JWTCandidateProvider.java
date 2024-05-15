@@ -25,7 +25,6 @@ public class JWTCandidateProvider {
             // .getSubject();
             return subject;
         } catch (JWTVerificationException e) {
-            e.printStackTrace();
             throw new IllegalStateException(e.getMessage());
         }
 
